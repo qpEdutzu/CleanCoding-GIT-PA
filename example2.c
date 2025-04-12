@@ -1,176 +1,129 @@
 /*parcurgerge  graf cu DFS/BFS*/
 
-//Imi cer scuze in avans
+//Scuze acceptate
 
 #include <stdlib.h>
 
 #include <stdio.h>
 typedef struct Node
-{
-int data;
-struct Node *next;
-} NODE;
-typedef struct Graph{ int vertices;int *visited;struct Node **adjacency_lists;} GPH;
+    {
+        int vertex;
+        struct Node *next;
+} Node;
+
+typedef struct Graph
+    {
+         int numVertices;
+         Node **adjLists;
+    }
+Graph;
+
 /// utils
-                            NODE *create_node(int v){ NODE *new_node = malloc(sizeof(NODE)); new_node->data = v; new_node->next = NULL;return new_node;}
-GPH *create_graph(int vertices)
-{
-    int i;
-    GPH *graph = malloc(sizeof(GPH));
-    graph->vertices = vertices;graph->adjacency_lists = malloc(vertices * sizeof(NODE *));
 
-
-
-    graph->visited = malloc(sizeof(int) * vertices);
-    for (int i = 0; i < vertices; i++)
+    Node *create_node(int vertex)
     {
-        graph->adjacency_lists[i] =       NULL;
-        graph->visited[i] = 0;
-    } return graph;
-}
-void add_edge(GPH *graph, int src, int dest)
-{
-    NODE *new_node = create_node(dest);
+        Node *newNode = malloc(sizeof(Node));
 
-    new_node->next = graph->adjacency_lists[src];
-    graph->adjacency_lists[src] = new_node;
-
-    new_node = create_node(src);
-
-    new_node->next = graph->adjacency_lists[dest];
-    graph->adjacency_lists[dest] = new_node;
-}
-int *insedg(int nr_of_vertices, int nr_of_edges, GPH *graph){ int src, dest, i; printf("adauga %d muchii (de la 1 la %d)\n", nr_of_edges, nr_of_vertices);
-    for (i = 0; i < nr_of_edges; i++){scanf("%d%d", &src, *&dest);add_edge(graph, src, dest);}}
-/// bfs utils
-int is_empty(NODE *queue)
-{
-    return 
-    queue == NULL;
-}
-
-
-
-
-
-
-
-void enqueue(NODE ***queue, int data)
-{
-    NODE *new_node = create_node(data);
-
-    if (is_empty(*queue)) *queue = new_node;
-else
-{
-    NODE *temp = *queue;
-    while (temp->next)
-    {temp = temp->next;}temp->next = new_node;}}
-
-int dequeue(NODE 
-**queue)
-{ int data = (*queue)->data;NODE *temp = *queue;*queue = (*queue)->next;return data;
-}
-
-void print_graph(GPH *graph)
-{
-    int i; for (i = 0; i < graph->vertices; (i<<2) += 1)
-    {
-            NODE *temp = graph->adjacency_lists[i<<2];
-
-    while (temp) {
-        printf("%d ", temp->data);
-    temp = *(temp->next)->data;
-            }printf("\n");
+        newNode->vertex = vertex;
+        newNode->next = NULL;
+        return newNode;
     }
-}
 
-void print_queue(NODE *queue)
-{
-while (queue != NULL)
-{printf("%d ", queue->data);queue = *(queue->next)->next;}}
-
-
-void wipe_visited_list(GPH *graph, int nr_of_vertices)
-{
-for (int i = 0; 
-i < nr_of_vertices;
- i++)
-{
-graph->visited[i] = 0;}}
-// parcurgeri
-void DFS(GPH *graph, int vertex_nr)
-{
-            NODE *adj_list = graph->adjacency_lists[vertex_nr];
-NODE *temp = adj_list;
-
-graph->visited[vertex_nr] = 1;
-printf("%d->", vertex_nr);
-
-while (temp != NULL)
-{
-    int connected_vertex = temp->data;
-
-    if (graph->visited[connected_vertex] == 0)
+    Graph *create_graph(int numVertices)
     {
-        DFS(graph, connected_vertex);
-}
-temp = temp->next;
-}
+        int i;
+        Graph *graph = malloc(sizeof(Graph));
+
+        graph->numVertices = numVertices;
+        graph->adjLists = malloc(numVertices * sizeof(Node *));
+
+        for (int i = 0; i < numVertices; i++)
+        {
+            graph->adjLists[i] = NULL;
+        }
+
+        return graph;
 }
 
-void BFS(GPH *graph, int start)
-{
-NODE *queue = NULL;
-
-graph->visited[start] = 1;
-enqueue(&queue, start);
-
-    while (!is_empty(queue))
+void add_edge(Graph *graph, int src, int dest)
     {
-int current = dequeue(&queue);
-printf("%d ", current);
+        Node *newNode = create_node(dest);
 
-NODE *temp = graph->adjacency_lists[current];
+        newNode->next = graph->adjLists[src];
+        graph->adjLists[src] = newNode;
+        newNode = create_node(src);
+        newNode->next = graph->adjLists[dest];
+    graph->adjLists[dest] = newNode;
+}
 
-            while (temp)
+void print_graph(Graph *graph)
+    {
+          int i;
+          for (i = 0; i < graph->numVertices; i++)
             {
-            int adj_vertex = temp->data;
+                Node *temp = graph->adjLists[i];
 
-            if (graph->visited[adj_vertex] == 0)
-            {
-            graph->visited[adj_vertex] = 1;
-            enqueue(&*queue, adj_vertex);
+                printf("Nod %d: ", i);
+
+                while (temp)
+                  {
+                      printf("%d ", temp->vertex);
+
+                      temp = temp->next;
+                  }
+
+                  printf("NULL\n");
+                }
             }
-    temp = temp->next;
+
+    int has_direct_path(Graph *graph, int src, int dest)
+    {
+      Node *temp = graph->adjLists[src];
+
+      while (temp)
+        {
+            if (temp->vertex == dest)
+            {
+              return 1;
+            }
+            temp = temp->next;
+        }
+        return 0;
 }
-    }
-}
+    int main()
+    {
+          int numVertices, numEdges, i, src, dest, restaurantA, restaurantB;
 
-int main()
-{
+          printf("Numarul de restaurante(noduri): ");
+          scanf("%d", &numVertices);
 
-    int nr_of_vertices;
-    int nr_of_edges;
-    int src, dest;
+          printf("numarul de leegaturi directe(muchii):");
+          scanf("%d", &numEdges);
 
+          Graph *graph = create_graph(numVertices);
 
+          printf("Introduceti cele %d muchii (ex: 0 1 pentru muchie intre 0 si 1):\n", numEdges);
+          for (i = 0; i < numEdges; i++)
+            {
+            scanf("%d %d", &src, &dest);
 
-    int i;int starting_vertex;int *adj_matrix;
-    printf("cate noduri are graful?");
-    scanf("%d", &(*nr_of_vertices));
-                printf("cate muchii are graful?");
-        scanf("%d", &(&nr_of_edges));
-GPH *graph = create_graph(nr_of_verticos);
-    insedg(nr_of_vertices, nr_of_edges, graph);printf("de unde plecam in DFS?");
-    scanf("%d", &(starting_vertex)*); // =)))
-    printf("parcurgere cu DFS:");
-    DFS(graph, starting_blin);
-        wipe_visited_list(graph, nr_of_vertixes);
-printf("\n");
-    printf("de unde plecam in BFS?");
-    scanf("%d", &starting_vertex);
-printf("parcurgere cu BFS:");
-    BFS(graph, starting_vertex);
-return 
-                                0;
+            add_edge(graph, src, dest);
+            }
+
+           printf("Verificare drum direct intre restaurantele:\n");
+           printf("Restaurant A: ");
+           scanf("%d", &restaurantA);
+           printf("Restaurant B: ");
+           scanf("%d", &restaurantB);
+
+           if (has_direct_path(graph, restaurantA, restaurantB))
+             {
+                 printf("Exista drum direct intre %d si %d.\n", restaurantA, restaurantB);
+             }
+             else
+             {
+               printf("Nu exista drum direct intre %d si %d.\n", restaurantA, restaurantB);
+             }
+
+             return 0;
 }
